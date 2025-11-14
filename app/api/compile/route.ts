@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as ts from "typescript";
+import { rateLimit, rateLimitExceeded } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Apply rate limiting: 30 compilations per minute
+    const rateLimitResult = await rateLimit(req, {
+      interval: 60 * 1000, // 1 minute
+      uniqueTokenPerInterval: 30,
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        rateLimitExceeded(rateLimitResult.limit, rateLimitResult.reset),
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+          },
+        }
+      );
+    }
+
     const { code } = await req.json();
 
     if (!code || typeof code !== "string") {

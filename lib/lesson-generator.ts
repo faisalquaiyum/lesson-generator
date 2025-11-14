@@ -50,8 +50,20 @@ CRITICAL REQUIREMENTS:
 2. Must start with a default export: "export default function LessonComponent() {"
 3. Use Tailwind CSS for ALL styling (classes like: bg-white, text-gray-900, p-6, rounded-lg, shadow-lg, etc.)
 4. Make it visually appealing with proper spacing, colors, and typography
-5. Include interactive elements where appropriate (buttons, inputs, checkboxes for quizzes)
-6. For quizzes: 
+5. LESSON TYPES - Adapt based on the request:
+   
+   A. FOR INTERACTIVE LESSONS (explanations, tutorials, concepts):
+   - Create engaging educational content with sections/chapters
+   - Include visual elements: colored boxes for key concepts, diagrams using div/spans with borders
+   - Add expandable sections with toggle buttons for detailed explanations
+   - Use cards/panels to organize information hierarchically
+   - Include examples, code snippets (in styled pre/code blocks), or step-by-step explanations
+   - Add interactive elements: collapsible sections, tabs for different topics, progress indicators
+   - Include diagrams: use CSS/Tailwind to create visual representations (flowcharts, timelines, comparisons)
+   - Add "Key Takeaways" or "Summary" sections with highlighted bullet points
+   - Navigation: "Back to Home" button: window.parent.postMessage('navigateToHome', '*')
+   
+   B. FOR QUIZZES (when explicitly requested):
    - Use pagination with Next/Previous buttons to navigate between questions
    - Show one question at a time with current question number (e.g., "Question 1 of 10")
    - Show Submit button only on the last question instead of Next
@@ -59,10 +71,16 @@ CRITICAL REQUIREMENTS:
      * "Back to Home" button that calls: window.parent.postMessage('navigateToHome', '*')
      * "Try Again" button that resets the quiz state to start over
    - Include answer checking with state management using useState
-7. Use modern React patterns with TypeScript
-8. NO external imports except React hooks (useState, useEffect if needed)
-9. Include proper TypeScript types for all variables and functions
-10. Make the content educational, engaging, and well-structured
+   
+   C. FOR MIXED CONTENT:
+   - Combine both approaches: start with educational content, then quiz at the end
+   - Add tabs or sections to switch between Learn and Practice modes
+
+6. Use modern React patterns with TypeScript
+7. NO external imports except React hooks (useState, useEffect, useMemo, useCallback if needed)
+8. Include proper TypeScript types for all variables and functions
+9. Make the content educational, engaging, and well-structured with clear hierarchy
+10. Use emojis strategically to make content more engaging (📚 🎯 💡 ✨ 🔍 📊 etc.)
 
 STYLING GUIDELINES:
 - Use a clean, modern design with good contrast

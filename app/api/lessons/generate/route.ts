@@ -1,9 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateLesson } from "@/lib/lesson-generator";
+import { rateLimit, rateLimitExceeded } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting: 5 lesson generations per minute
+    const rateLimitResult = await rateLimit(request, {
+      interval: 60 * 1000, // 1 minute
+      uniqueTokenPerInterval: 5,
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        rateLimitExceeded(rateLimitResult.limit, rateLimitResult.reset),
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+            "Retry-After": Math.ceil(
+              (rateLimitResult.reset - Date.now()) / 1000
+            ).toString(),
+          },
+        }
+      );
+    }
+
     const { outline } = await request.json();
 
     if (!outline || typeof outline !== "string" || outline.trim().length === 0) {
@@ -37,7 +61,16 @@ export async function POST(request: NextRequest) {
     // Start generation in the background (don't await)
     generateLessonInBackground(lesson.id, outline.trim());
 
-    return NextResponse.json({ lesson });
+    return NextResponse.json(
+      { lesson },
+      {
+        headers: {
+          "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+          "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+        },
+      }
+    );
   } catch (error) {
     console.error("Error in generate API:", error);
     return NextResponse.json(

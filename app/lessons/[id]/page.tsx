@@ -156,11 +156,11 @@ export default function LessonPage() {
   };
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Loading lesson...
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#1D546C] mx-auto mb-4"></div>
+          <p className="text-lg text-[#F4F4F4]/90 font-medium">
+            ⏳ Loading lesson...
           </p>
         </div>
       </div>
@@ -169,30 +169,18 @@ export default function LessonPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64] flex items-center justify-center">
         <div className="max-w-2xl mx-auto p-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
+          <div className="bg-white rounded-lg shadow-2xl p-8 border-2 border-red-300">
             <div className="text-center">
-              <svg
-                className="mx-auto h-12 w-12 text-red-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h2 className="mt-4 text-2xl font-bold text-[#0C2B4E]">
                 Error Loading Lesson
               </h2>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">{error}</p>
+              <p className="mt-2 text-[#1A3D64]/70">{error}</p>
               <Link href="/">
-                <Button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white">
-                  Back to Home
+                <Button className="mt-6 bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white shadow-lg">
+                  ← Back to Home
                 </Button>
               </Link>
             </div>
@@ -204,14 +192,15 @@ export default function LessonPage() {
 
   if (!lesson) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <div className="text-6xl mb-4">🔍</div>
+          <p className="text-lg text-[#F4F4F4]/90 font-medium mb-4">
             Lesson not found
           </p>
           <Link href="/">
-            <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
-              Back to Home
+            <Button className="mt-4 bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white shadow-lg">
+              ← Back to Home
             </Button>
           </Link>
         </div>
@@ -221,13 +210,13 @@ export default function LessonPage() {
 
   if (lesson.status === "generating") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Generating Your Lesson
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#1D546C] mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            ✨ Generating Your Lesson
           </h2>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-[#F4F4F4]/80">
             This may take a moment. The page will update automatically when
             ready.
           </p>
@@ -237,22 +226,27 @@ export default function LessonPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64]">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Header */}
         <div className="mb-6">
           <Link href="/">
-            <Button variant="outline" className="mb-4">
+            <Button
+              variant="outline"
+              className="mb-4 bg-white/90 border-2 border-[#1D546C]/30 text-[#0C2B4E] hover:bg-[#F4F4F4] hover:border-[#1D546C] transition-all duration-200"
+            >
               ← Back to Lessons
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {lesson.title}
-          </h1>
+          <div className="bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border-2 border-[#1D546C]/20">
+            <h1 className="text-3xl font-bold text-[#0C2B4E]">
+              📚 {lesson.title}
+            </h1>
+          </div>
         </div>
 
         {/* Render the generated lesson component */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-[#1D546C]/20">
           {LessonComponent ? (
             <div className="p-0">
               <LessonComponent />

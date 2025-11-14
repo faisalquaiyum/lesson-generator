@@ -81,6 +81,13 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle rate limiting
+        if (response.status === 429) {
+          const retryAfter = data.retryAfter || 60;
+          throw new Error(
+            `Rate limit exceeded. Please wait ${retryAfter} seconds before trying again.`
+          );
+        }
         throw new Error(data.error || "Failed to generate lesson");
       }
 
@@ -101,32 +108,39 @@ export default function Home() {
   };
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+    const baseClasses =
+      "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap";
 
     switch (status) {
       case "generating":
         return (
           <span
-            className={`${baseClasses} bg-blue-100 text-blue-700 animate-pulse`}
+            className={`${baseClasses} bg-[#1D546C]/20 text-[#1D546C] animate-pulse border border-[#1D546C]/30`}
           >
-            Generating...
+            ⏳ Generating...
           </span>
         );
       case "generated":
         return (
-          <span className={`${baseClasses} bg-green-100 text-green-700`}>
-            Generated
+          <span
+            className={`${baseClasses} bg-green-100 text-green-700 border border-green-300`}
+          >
+            ✅ Generated
           </span>
         );
       case "failed":
         return (
-          <span className={`${baseClasses} bg-red-100 text-red-700`}>
-            Failed
+          <span
+            className={`${baseClasses} bg-red-100 text-red-700 border border-red-300`}
+          >
+            ❌ Failed
           </span>
         );
       default:
         return (
-          <span className={`${baseClasses} bg-gray-100 text-gray-700`}>
+          <span
+            className={`${baseClasses} bg-[#F4F4F4] text-[#1A3D64] border border-[#1A3D64]/20`}
+          >
             {status}
           </span>
         );
@@ -134,53 +148,54 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64]">
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="text-center mb-12 mt-10">
+          <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
             AI Lesson Generator
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-lg text-[#F4F4F4]/90 max-w-2xl mx-auto">
             Create interactive educational content with AI-powered TypeScript
             components
           </p>
         </div>
 
         {/* Generation Form */}
-        <Card className="p-8 mb-12 shadow-xl">
+        <Card className="p-8 mb-12 shadow-2xl bg-white/95 backdrop-blur border-2 border-[#1D546C]/20">
           <form onSubmit={handleGenerate} className="space-y-6">
             <div>
               <Label
                 htmlFor="outline"
-                className="text-lg font-semibold mb-3 block"
+                className="text-lg font-semibold mb-3 block text-[#0C2B4E]"
               >
-                Lesson Outline
+                📝 Lesson Outline
               </Label>
               <textarea
                 id="outline"
                 value={outline}
                 onChange={(e) => setOutline(e.target.value)}
                 placeholder="e.g., 'A 10 question pop quiz on Florida' or 'An explanation of how the Cartesian Grid works'"
-                className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-base dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="w-full h-32 px-4 py-3 border-2 border-[#1D546C]/30 rounded-lg focus:ring-2 focus:ring-[#1D546C] focus:border-[#1D546C] resize-none text-base transition-all duration-200 hover:border-[#1D546C]/50 bg-white text-[#0C2B4E] placeholder:text-gray-400"
                 disabled={isGenerating}
               />
-              <p className="text-sm text-gray-500 mt-2">
-                Describe the lesson you want to create. Be specific about the
+              <p className="text-sm text-[#1A3D64]/70 mt-2">
+                💡 Describe the lesson you want to create. Be specific about the
                 content and format.
               </p>
             </div>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                {error}
+              <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg text-red-700 flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <span>{error}</span>
               </div>
             )}
 
             <Button
               type="submit"
               disabled={isGenerating || !outline.trim()}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white font-semibold py-6 text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center gap-2">
@@ -214,30 +229,21 @@ export default function Home() {
         </Card>
 
         {/* Lessons Table */}
-        <Card className="p-8 shadow-xl">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Your Lessons
-          </h2>
+        <Card className="p-8 shadow-2xl bg-white/95 backdrop-blur border-2 border-[#1D546C]/20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-gradient-to-r from-[#1A3D64] to-[#1D546C] w-1 h-8 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-[#0C2B4E]">
+              📚 Your Lessons
+            </h2>
+          </div>
 
           {lessons.length === 0 ? (
-            <div className="text-center py-12">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">📖</div>
+              <h3 className="mt-4 text-lg font-semibold text-[#0C2B4E]">
                 No lessons yet
               </h3>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">
+              <p className="mt-2 text-[#1A3D64]/70">
                 Get started by creating your first lesson above.
               </p>
             </div>
@@ -245,17 +251,17 @@ export default function Home() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                  <tr className="border-b-2 border-[#1D546C]/30 bg-[#F4F4F4]">
+                    <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
                       Title
                     </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                    <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
                       Status
                     </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                    <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
                       Created
                     </th>
-                    <th className="text-right py-4 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                    <th className="text-right py-4 px-4 font-semibold text-[#0C2B4E]">
                       Action
                     </th>
                   </tr>
@@ -264,20 +270,20 @@ export default function Home() {
                   {lessons.map((lesson) => (
                     <tr
                       key={lesson.id}
-                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      className="border-b border-[#1D546C]/10 hover:bg-[#F4F4F4]/50 transition-all duration-200"
                     >
-                      <td className="py-4 px-4">
-                        <div className="font-medium text-gray-900 dark:text-white">
+                      <td className="py-4 px-4 align-middle">
+                        <div className="font-semibold text-[#0C2B4E]">
                           {lesson.title}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                        <div className="text-sm text-[#1A3D64]/60 mt-1 line-clamp-1">
                           {lesson.outline}
                         </div>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 align-middle">
                         {getStatusBadge(lesson.status)}
                       </td>
-                      <td className="py-4 px-4 text-gray-600 dark:text-gray-400">
+                      <td className="py-4 px-4 text-[#1A3D64]/70 align-middle">
                         {new Date(lesson.created_at).toLocaleDateString(
                           undefined,
                           {
@@ -288,27 +294,27 @@ export default function Home() {
                           }
                         )}
                       </td>
-                      <td className="py-4 px-4 text-right">
+                      <td className="py-4 px-4 text-right align-middle">
                         {lesson.status === "generated" ? (
                           <Link href={`/lessons/${lesson.id}`}>
                             <Button
                               variant="default"
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              className="bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white shadow-lg transition-all duration-200 hover:shadow-xl"
                             >
-                              View Lesson
+                              👁️ View Lesson
                             </Button>
                           </Link>
                         ) : lesson.status === "failed" ? (
-                          <span className="text-sm text-red-600 dark:text-red-400">
+                          <span className="text-sm text-red-600 font-medium">
                             {lesson.error_message || "Generation failed"}
                           </span>
                         ) : (
                           <Button
                             variant="outline"
                             disabled
-                            className="opacity-50 cursor-not-allowed"
+                            className="opacity-50 cursor-not-allowed border-[#1D546C]/30"
                           >
-                            Generating...
+                            ⏳ Generating...
                           </Button>
                         )}
                       </td>
@@ -321,9 +327,10 @@ export default function Home() {
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-12 text-gray-600 dark:text-gray-400">
-          <p className="text-sm">
-            Powered by Google Gemini • Built with Next.js, TypeScript & Supabase
+        <div className="text-center mt-12 text-[#F4F4F4]/80">
+          <p className="text-sm font-medium">
+            ⚡ Powered by Google Gemini • Built with Next.js, TypeScript &
+            Supabase
           </p>
         </div>
       </div>
