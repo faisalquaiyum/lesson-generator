@@ -33,6 +33,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate code size (prevent memory issues)
+    if (code.length > 500000) {
+      // 500KB limit
+      return NextResponse.json(
+        { 
+          error: `Code is too large (${Math.round(code.length / 1000)}KB). Maximum allowed: 500KB`,
+        },
+        { status: 413 }
+      );
+    }
+
+    // Check if code is essentially empty
+    if (code.trim().length < 100) {
+      return NextResponse.json(
+        { error: "Code is too short to be a valid component" },
+        { status: 400 }
+      );
+    }
+
     // Transform the TypeScript code to remove imports and adjust exports
     let transformedCode = code;
 
@@ -84,6 +103,30 @@ export async function POST(req: NextRequest) {
     const result = ts.transpileModule(transformedCode, {
       compilerOptions,
     });
+
+    // Validate compiled output
+    if (!result.outputText || result.outputText.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Compilation produced empty output. The code may be invalid." },
+        { status: 500 }
+      );
+    }
+
+    // Final security check: ensure no dangerous patterns in compiled code
+    const dangerousPatterns = [
+      /\beval\s*\(/,
+      /\bFunction\s*\(/,
+      /new\s+Function\s*\(/,
+    ];
+
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(result.outputText)) {
+        return NextResponse.json(
+          { error: "Compiled code contains unsafe patterns and cannot be executed" },
+          { status: 500 }
+        );
+      }
+    }
 
     // Check for diagnostics (errors/warnings)
     if (result.diagnostics && result.diagnostics.length > 0) {

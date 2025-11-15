@@ -1,47 +1,118 @@
 # 🎓 AI Lesson Generator
 
-A full-stack application that generates diverse interactive educational content using AI. Built with Next.js, TypeScript, Supabase, and Google Gemini. Create engaging lessons ranging from interactive tutorials with diagrams to comprehensive quizzes.
+A full-stack multilingual AI-powered educational platform that generates highly interactive lessons in **11+ languages**. Built with Next.js 15, TypeScript, Supabase, and Google Gemini 2.0 Flash. Create engaging content from interactive tutorials with animations to comprehensive quizzes with gamification.
 
-## ✨ Features
+## ✨ Key Features
 
-### 🤖 AI-Powered Content Generation
+### 🌍 Multi-Language Support (11+ Languages)
 
-- **Interactive Lessons**: Educational content with visual diagrams, expandable sections, and structured explanations
-- **Quiz Generation**: Paginated quizzes with next/previous navigation and instant scoring
-- **Mixed Content**: Combination of learning materials and practice questions
-- **Smart Compilation**: TypeScript to JavaScript compilation in secure iframe sandbox
+- **Native Script Support**: Hindi, Tamil, Telugu, Marathi, Bengali, Gujarati, Kannada, Malayalam, Punjabi, Urdu, English
+- **Romanized Input**: Also supports romanized Hindi (e.g., "ganit ka paath")
+- **Language Detection**: Automatic script detection with AI-adapted content generation
+- **Unicode Validation**: Full support for Indic scripts (Devanagari, Tamil, Telugu, etc.) and Arabic/Urdu
+- **Educational Keywords**: 100+ keywords across all supported languages
 
-### 🎨 Modern UI/UX
+### 🎮 Highly Interactive Content
 
-- **Custom Color Palette**: Professional navy-teal theme (#0C2B4E, #1A3D64, #1D546C, #F4F4F4)
-- **Responsive Design**: Mobile-first with Tailwind CSS
-- **Real-time Updates**: Automatic polling for lesson generation status
-- **Animated Elements**: Smooth transitions, hover effects, and loading states
-- **Status Tracking**: Visual badges for generating, generated, and failed states
+- **15+ Interactive Patterns**: Flashcards, drag-drop, sliders, memory games, matching exercises, fill-in-blanks
+- **Gamification**: Points, progress tracking, timed challenges, visual feedback, celebration animations
+- **Live Simulations**: Input parameters and see real-time results
+- **Step-by-Step Walkthroughs**: Guided learning with navigation controls
+- **Interactive Diagrams**: Click to reveal, expand, and explore
+- **Quiz Modes**: Multiple choice, fill-in-blank, timed quizzes with instant feedback
 
-### 🔒 Security & Performance
+### 🎨 Modern Vibrant UI
 
-- **Rate Limiting**: 5 lesson generations/minute, 30 compilations/minute
-- **Sandbox Execution**: Generated code runs in isolated iframe
-- **Safe Navigation**: PostMessage API for cross-frame communication
-- **TypeScript Validation**: Multi-step validation with automatic retry logic
+- **Gradient Design**: Purple-blue-indigo theme with animated elements
+- **Multilingual UI**: Hindi, Urdu, Tamil prompts throughout interface
+- **Hero Section**: Animated bouncing graduation cap, gradient headings, feature badges
+- **Enhanced Forms**: Gradient backgrounds, purple borders, multi-line tips with examples
+- **Loading States**: Double spinner animations, pulse effects, progress messaging
+- **Hover Effects**: Scale transforms, shadow transitions, border highlights
 
-### 📊 Observability
+### 🔒 Enterprise-Grade Security & Validation
+
+- **4-Layer Code Validation**: 11 TypeScript checks, AI-powered fixing, retry logic, database save guards
+- **Multi-Language Input Validation**: Security checks across all 11 languages
+- **SQL/Prompt Injection Prevention**: Pattern detection and blocking
+- **XSS Protection**: Content sanitization and display filtering
+- **Invisible Character Detection**: Unicode validation for zero-width chars
+- **Code Size Limits**: 500KB maximum, 100 char minimum
+- **Dangerous Pattern Detection**: Blocks eval, Function constructors in compiled code
+
+### 🚀 Performance & Reliability
+
+- **Network Resilience**: Exponential backoff retry (1s, 2s, 4s), AbortController timeouts
+- **Duplicate Prevention**: 5-minute window check, returns 409 with existing lesson ID
+- **Generation Timeout**: 10-minute max with Promise.race()
+- **Visibility API**: Stops polling when tab hidden, resumes on focus
+- **Offline Detection**: Checks navigator.onLine before submission
+- **Rate Limiting**: 5 generations/min, 30 compilations/min with human-readable retry messages
+
+### 📊 Edge Case Handling
+
+- **Database Utilities**: Cleanup stuck lessons (>10 min), delete old failed lessons (>7 days)
+- **Pagination**: Ready-to-use pagination utilities with filtering and sorting
+- **Error Recovery**: Retry buttons, reload functionality, graceful degradation
+- **Loading Skeletons**: Smooth loading states for better UX
+- **Empty States**: Helpful messaging when no lessons exist
+
+### 📈 Observability & Monitoring
 
 - **LangSmith Tracing**: Complete visibility into AI workflows
-- **Error Tracking**: Detailed error messages and recovery flows
-- **Performance Monitoring**: Request/response timing and status codes
+- **Detailed Logging**: Language detection, generation progress, validation steps
+- **Error Tracking**: Comprehensive error messages with suggestions
+- **Performance Monitoring**: Request/response timing, timeout detection
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes with rate limiting
-- **Database**: Supabase (PostgreSQL)
-- **AI**: Google Gemini 2.0 Flash
-- **Compilation**: TypeScript Compiler API
-- **Tracing**: LangSmith
-- **Package Manager**: Bun
-- **Deployment**: Vercel
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript 5
+- **Styling**: Tailwind CSS with custom gradients and animations
+- **Backend**: Next.js API Routes with edge case handling
+- **Database**: Supabase (PostgreSQL) with RLS policies
+- **AI Model**: Google Gemini 2.0 Flash (multilingual)
+- **Compilation**: TypeScript Compiler API with sandbox execution
+- **Tracing**: LangSmith for AI observability
+- **Package Manager**: Bun (or npm/yarn)
+- **Deployment**: Vercel-ready
+
+## 🌟 Example Prompts
+
+### English
+
+```
+Create an interactive quiz on Indian history with 10 questions
+Teach me photosynthesis with animations and diagrams
+Build a memory matching game for learning multiplication tables
+```
+
+### Hindi (हिंदी)
+
+```
+गणित का पाठ बनाओ - भिन्न के बारे में
+विज्ञान पढ़ाओ - प्रकाश संश्लेषण
+```
+
+### Gujarati (ગુજરાતી)
+
+```
+ગણિત પાઠ બનાવો
+વિજ્ઞાન શીખવો - પ્રકાશસંશ્લેષણ
+```
+
+### Urdu (اردو)
+
+```
+ریاضی کا سبق بنائیں
+سائنس سکھائیں - نباتات کی خوراک
+```
+
+### Tamil (தமிழ்)
+
+```
+கணிதம் பாடம் உருவாக்கு
+அறிவியல் கற்றுக்கொடு - ஒளிச்சேர்க்கை
+```
 
 ## Getting Started
 
@@ -132,50 +203,19 @@ Enter a lesson outline and click "Generate Lesson". The AI will create interacti
 
 ### 2. Watch the Status
 
-- ⏳ **Generating**: AI is creating your lesson (automatic updates)
-- ✅ **Generated**: Lesson is ready to view
-- ❌ **Failed**: Generation encountered an error
+- ⏳ **Generating**: AI is creating your lesson (auto-refreshes every 3s, pauses when tab hidden)
+- ✅ **Generated**: Lesson is ready to view (click 📖 View Lesson)
+- ❌ **Failed**: Generation encountered an error with details
 
-### 3. View & Interact
+### 3. Interact & Learn
 
-Click "View Lesson" to:
+Lessons include:
 
-- Explore interactive content with expandable sections
-- View visual diagrams and concept boxes
-- Take paginated quizzes with instant feedback
-- Navigate back home or retry quizzes
-
-### 📝 Example Prompts
-
-**Interactive Lessons:**
-
-```
-Interactive lesson explaining how the solar system works with diagrams and key concepts
-```
-
-```
-Step-by-step explanation of long division with examples
-```
-
-```
-Understanding the Cartesian Grid with visual examples
-```
-
-**Quizzes:**
-
-```
-A 10 question pop quiz on Florida history
-```
-
-```
-Test on basic algebra concepts
-```
-
-**Mixed:**
-
-```
-Learn about the American Revolution with a 5 question quiz at the end
-```
+- **Interactive elements**: Clickable cards, sliders, drag-drop, fill-in-blanks
+- **Visual feedback**: Color-coded answers, animations, progress bars
+- **Gamification**: Points, scores, timed challenges, achievements
+- **Rich content**: Diagrams, code examples, step-by-step guides
+- **Navigation**: Back to home button using PostMessage API
 
 ## 🚀 Deployment
 
@@ -285,31 +325,29 @@ View traces at: [https://smith.langchain.com](https://smith.langchain.com)
 lesson-generator/
 ├── app/
 │   ├── api/
-│   │   ├── compile/
-│   │   │   └── route.ts              # TypeScript compilation endpoint
+│   │   ├── compile/route.ts          # TypeScript compilation (500KB limit, security checks)
 │   │   └── lessons/
 │   │       ├── route.ts              # GET all lessons
 │   │       ├── [id]/route.ts         # GET single lesson
-│   │       └── generate/route.ts     # POST generate lesson (rate-limited)
-│   ├── lessons/
-│   │   └── [id]/page.tsx            # Lesson view with iframe sandbox
-│   ├── layout.tsx                    # Root layout with theme
-│   ├── page.tsx                      # Home page with generation form
-│   └── globals.css                   # Global styles with custom colors
-├── components/
-│   └── ui/                           # Shadcn UI components (badge, button, card, input, label)
+│   │       └── generate/route.ts     # POST generate (rate-limited, duplicate check, timeout)
+│   ├── lessons/[id]/page.tsx         # Lesson view with enhanced loading states
+│   ├── page.tsx                      # Home page with multilingual UI, retry logic
+│   ├── layout.tsx                    # Root layout
+│   └── globals.css                   # Gradient styles
+├── components/ui/                    # Shadcn components
 ├── lib/
-│   ├── lesson-generator.ts           # AI generation logic with LangSmith
-│   ├── rate-limit.ts                 # Rate limiting utility
-│   ├── types.ts                      # TypeScript types & validation
-│   ├── utils.ts                      # Utility functions
-│   └── supabase/
-│       └── server.ts                 # Server-side Supabase client
-├── supabase/
-│   └── migrations/
-│       └── 001_create_lessons_table.sql
-├── tailwind.config.ts                # Custom brand colors
-└── .env.local                        # Environment variables
+│   ├── lesson-generator.ts           # AI generation with language detection
+│   ├── validate-prompt.ts            # Multi-language validation (11+ languages)
+│   ├── database-utils.ts             # Cleanup utilities, pagination
+│   ├── utils-edge-cases.ts           # Network retry, timeout, formatting helpers
+│   ├── rate-limit.ts                 # Rate limiting
+│   ├── types.ts                      # 11-point TypeScript validation
+│   └── supabase/                     # Supabase clients
+├── supabase/migrations/
+│   └── 001_create_lessons_table.sql
+├── LANGUAGES.md                      # Language support documentation
+├── VALIDATION_SYSTEM.md              # Code validation documentation
+└── tailwind.config.ts                # Purple-blue-indigo gradients
 ```
 
 ### Key Files
@@ -366,18 +404,17 @@ lesson-generator/
 
 ## 🎯 Future Enhancements
 
-- [ ] **Distributed Rate Limiting**: Replace in-memory Map with Redis/Vercel KV for multi-instance deployments
-- [ ] **SVG Generation**: AI-generated custom diagrams tailored to lesson content
-- [ ] **Image Integration**: AI-generated images for visual enhancement
-- [ ] **Lesson Templates**: Pre-built templates for common subjects (math, science, history, etc.)
-- [ ] **Export Functionality**: Download lessons as standalone HTML files or PDFs
-- [ ] **User Accounts**: Authentication system for lesson ownership and management
-- [ ] **Sharing & Collaboration**: Share lessons via unique URLs, collaborative editing
-- [ ] **Version History**: Track and restore previous versions of lessons
-- [ ] **Analytics**: Track lesson usage, completion rates, quiz performance
-- [ ] **Multi-language**: Generate lessons in different languages
-- [ ] **Accessibility**: Enhanced ARIA labels, keyboard navigation, screen reader support
-- [ ] **Caching**: Cache compiled TypeScript for faster subsequent loads
+- [ ] **Distributed Rate Limiting**: Replace in-memory Map with Redis/Vercel KV
+- [ ] **Cron Jobs**: Scheduled cleanup of stuck/old lessons using Vercel Cron
+- [ ] **Pagination API**: Implement pagination endpoints for lesson list
+- [ ] **SVG/Image Generation**: AI-generated custom diagrams and visuals
+- [ ] **More Languages**: Add support for additional regional languages
+- [ ] **User Accounts**: Authentication for lesson ownership and history
+- [ ] **Export Functionality**: Download as HTML/PDF
+- [ ] **Analytics Dashboard**: Track usage, completion rates, popular topics
+- [ ] **Lesson Templates**: Pre-built templates by subject
+- [ ] **Voice Input**: Speech-to-text for prompt input
+- [ ] **Accessibility**: Enhanced ARIA labels, keyboard navigation
 
 ## License
 

@@ -156,12 +156,16 @@ export default function LessonPage() {
   };
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#1D546C] mx-auto mb-4"></div>
-          <p className="text-lg text-[#F4F4F4]/90 font-medium">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-purple-400 mx-auto mb-6"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-20 w-20 border-4 border-blue-400 opacity-20 mx-auto"></div>
+          </div>
+          <p className="text-2xl text-white font-bold mb-2 animate-pulse">
             ⏳ Loading lesson...
           </p>
+          <p className="text-white/70">Preparing your interactive content</p>
         </div>
       </div>
     );
@@ -210,43 +214,77 @@ export default function LessonPage() {
 
   if (lesson.status === "generating") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#1D546C] mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-white mb-2">
-            ✨ Generating Your Lesson
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="relative mb-8">
+            <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-yellow-400 mx-auto"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-24 w-24 border-4 border-purple-400 opacity-20 mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center text-4xl animate-bounce">
+              ✨
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4">
+            🎨 Crafting Your Lesson
           </h2>
-          <p className="text-[#F4F4F4]/80">
-            This may take a moment. The page will update automatically when
-            ready.
+          <p className="text-white/80 text-lg mb-3">
+            Our AI is creating an interactive learning experience just for
+            you...
           </p>
+          <p className="text-yellow-200 text-base mb-6 font-semibold">
+            आपका पाठ तैयार किया जा रहा है • آپ کا سبق تیار کیا جا رہا ہے
+          </p>
+          <div className="bg-white/10 backdrop-blur rounded-lg p-4 border border-white/20">
+            <p className="text-white/70 text-sm mb-2">
+              ⏱️ This usually takes 30-60 seconds. The page will auto-refresh
+              when ready!
+            </p>
+            <p className="text-white/50 text-xs">
+              कृपया प्रतीक्षा करें • براہ کرم انتظار کریں • தயவுசெய்து
+              காத்திருங்கள்
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0C2B4E] to-[#1A3D64]">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <Link href="/">
             <Button
               variant="outline"
-              className="mb-4 bg-white/90 border-2 border-[#1D546C]/30 text-[#0C2B4E] hover:bg-[#F4F4F4] hover:border-[#1D546C] transition-all duration-200"
+              className="mb-6 bg-white/90 border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
             >
               ← Back to Lessons
             </Button>
           </Link>
-          <div className="bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border-2 border-[#1D546C]/20">
-            <h1 className="text-3xl font-bold text-[#0C2B4E]">
-              📚 {lesson.title}
-            </h1>
+          <div className="bg-gradient-to-r from-white via-purple-50 to-blue-50 backdrop-blur rounded-2xl p-6 shadow-2xl border-2 border-purple-200 transform hover:scale-[1.01] transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="text-5xl">📚</div>
+              <div>
+                <h1 className="text-4xl font-extrabold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  {lesson.title}
+                </h1>
+                <p className="text-gray-600 mt-1 text-sm">
+                  Interactive Learning Experience •
+                  <span className="text-purple-600 font-semibold ml-1">
+                    इंटरैक्टिव सीखने का अनुभव
+                  </span>{" "}
+                  •
+                  <span className="text-blue-600 font-semibold">
+                    انٹرایکٹو سیکھنے کا تجربہ
+                  </span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Render the generated lesson component */}
-        <div className="bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-[#1D546C]/20">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-200 hover:border-purple-300 transition-all duration-300">
           {LessonComponent ? (
             <div className="p-0">
               <LessonComponent />
