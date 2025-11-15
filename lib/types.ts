@@ -153,16 +153,6 @@ export function validateTypeScriptCode(code: string): {
     if (diagnostics.length > 0) {
       errors.push(...diagnostics);
     }
-    
-    // Additional check: ensure it parses without major errors
-    if (sourceFile.parseDiagnostics && sourceFile.parseDiagnostics.length > 0) {
-      const criticalErrors = sourceFile.parseDiagnostics.filter(
-        (d) => d.category === ts.DiagnosticCategory.Error
-      );
-      if (criticalErrors.length > 0) {
-        errors.push(`TypeScript parse error: ${criticalErrors[0].messageText}`);
-      }
-    }
   } catch (tsError) {
     errors.push(`TypeScript compilation check failed: ${tsError instanceof Error ? tsError.message : String(tsError)}`);
   }
