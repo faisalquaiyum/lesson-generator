@@ -71,9 +71,12 @@ Generate a complete, self-contained React component in TypeScript that implement
 CRITICAL REQUIREMENTS:
 1. Return ONLY valid TypeScript/React code - no markdown, no explanations, no code fences
 2. Must start with a default export: "export default function LessonComponent() {"
-3. Use Tailwind CSS for ALL styling (classes like: bg-white, text-gray-900, p-6, rounded-lg, shadow-lg, etc.)
-4. Make it visually appealing with proper spacing, colors, and typography
-5. LESSON TYPES - Adapt based on the request:
+3. VARIABLE DECLARATION ORDER (CRITICAL): Declare ALL variables (questions, items, cards, etc.) BEFORE using them in useState, calculations, or JSX. NEVER reference a variable before it's declared.
+   ❌ BAD: const total = questions.length; const questions = [...];
+   ✅ GOOD: const questions = [...]; const total = questions.length;
+4. Use Tailwind CSS for ALL styling (classes like: bg-white, text-gray-900, p-6, rounded-lg, shadow-lg, etc.)
+5. Make it visually appealing with proper spacing, colors, and typography
+6. LESSON TYPES - Adapt based on the request:
    
    A. FOR INTERACTIVE LESSONS (explanations, tutorials, concepts):
    - Create HIGHLY INTERACTIVE content with multiple engagement points
@@ -108,11 +111,30 @@ CRITICAL REQUIREMENTS:
    - Combine both approaches: start with educational content, then quiz at the end
    - Add tabs or sections to switch between Learn and Practice modes
 
-6. Use modern React patterns with TypeScript
-7. NO external imports except React hooks (useState, useEffect, useMemo, useCallback if needed)
-8. Include proper TypeScript types for all variables and functions
-9. Make the content educational, engaging, and well-structured with clear hierarchy
-10. Use emojis strategically to make content more engaging (📚 🎯 💡 ✨ 🔍 📊 etc.)
+7. Use modern React patterns with TypeScript
+8. NO external imports except React hooks (useState, useEffect, useMemo, useCallback if needed)
+9. Include proper TypeScript types for all variables and functions
+10. Make the content educational, engaging, and well-structured with clear hierarchy
+11. Use emojis strategically to make content more engaging (📚 🎯 💡 ✨ 🔍 📊 etc.)
+   
+   B. FOR QUIZZES (when explicitly requested):
+   - Use pagination with Next/Previous buttons to navigate between questions
+   - Show one question at a time with current question number (e.g., "Question 1 of 10")
+   - Show Submit button only on the last question instead of Next
+   - After submission, show results with score and two buttons: 
+     * "Back to Home" button that calls: window.parent.postMessage('navigateToHome', '*')
+     * "Try Again" button that resets the quiz state to start over
+   - Include answer checking with state management using useState
+   
+   C. FOR MIXED CONTENT:
+   - Combine both approaches: start with educational content, then quiz at the end
+   - Add tabs or sections to switch between Learn and Practice modes
+
+7. Use modern React patterns with TypeScript
+8. NO external imports except React hooks (useState, useEffect, useMemo, useCallback if needed)
+9. Include proper TypeScript types for all variables and functions
+10. Make the content educational, engaging, and well-structured with clear hierarchy
+11. Use emojis strategically to make content more engaging (📚 🎯 💡 ✨ 🔍 📊 etc.)
 
 INTERACTIVITY BEST PRACTICES:
 - Always prefer interactive elements over static text
@@ -298,6 +320,46 @@ export const generateLesson = traceable(
         return {
           success: false,
           error: `❌ Code validation failed after ${MAX_RETRIES} attempts.\n\nValidation Errors:\n${validation.errors.map((e, i) => `${i + 1}. ${e}`).join("\n")}\n\nPlease try again with a clearer prompt.`,
+        };
+      }
+      
+      // ADDITIONAL TDZ SAFETY CHECK: Quick pattern check for common TDZ issues
+      const tdzsafetyCheck = (code: string): string | null => {
+        const lines = code.split('\n');
+        const commonVars = ['questions', 'items', 'cards', 'steps', 'data', 'options', 'choices'];
+        
+        for (const varName of commonVars) {
+          let declLine = -1;
+          let useLine = -1;
+          
+          lines.forEach((line, idx) => {
+            if (line.match(new RegExp(`(const|let|var)\\s+${varName}\\s*=`))) {
+              declLine = idx;
+            }
+            if (line.match(new RegExp(`\\b${varName}\\.(\\w+)|\\b${varName}\\[`)) && useLine === -1) {
+              useLine = idx;
+            }
+          });
+          
+          if (declLine !== -1 && useLine !== -1 && useLine < declLine) {
+            return `TDZ: "${varName}" used at line ${useLine + 1} before declaration at line ${declLine + 1}`;
+          }
+        }
+        return null;
+      };
+      
+      const tdzError = tdzsafetyCheck(validation.code);
+      if (tdzError) {
+        console.error(`🚨 TDZ Safety Check Failed: ${tdzError}`);
+        
+        if (retryCount < MAX_RETRIES - 1) {
+          console.log(`🔄 Retrying due to TDZ issue (attempt ${retryCount + 2}/${MAX_RETRIES})...\n`);
+          return generateLesson({ outline, retryCount: retryCount + 1 });
+        }
+        
+        return {
+          success: false,
+          error: `Code quality issue: ${tdzError}. Please try regenerating the lesson.`,
         };
       }
       

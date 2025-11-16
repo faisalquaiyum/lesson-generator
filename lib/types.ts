@@ -117,7 +117,72 @@ export function validateTypeScriptCode(code: string): {
     }
   }
   
-  // 11. TypeScript compilation check (most comprehensive)
+  // 11. Check for Temporal Dead Zone (TDZ) errors - use before declaration
+  // This catches common patterns where variables are accessed before they're defined
+  const commonArrayVars = ['questions', 'items', 'cards', 'steps', 'lessons', 'data', 'options', 'choices', 'exercises'];
+  const lines = code.split('\n');
+  
+  for (const varName of commonArrayVars) {
+    let declLine = -1;
+    let firstUseLine = -1;
+    
+    // Scan through lines to find declaration and first use
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Check for declaration (const/let/var varName =)
+      if (declLine === -1 && /\b(const|let|var)\s+/.test(line) && new RegExp(`\\b${varName}\\s*=`).test(line)) {
+        declLine = i;
+      }
+      
+      // Check for usage (varName. or varName[)
+      // But skip the declaration line itself and comments
+      if (firstUseLine === -1 && !line.trim().startsWith('//') && !line.trim().startsWith('/*')) {
+        const hasPropertyAccess = new RegExp(`\\b${varName}\\.[a-zA-Z_]`).test(line);
+        const hasArrayAccess = new RegExp(`\\b${varName}\\[`).test(line);
+        const isDeclarationLine = /\b(const|let|var)\s+/.test(line) && new RegExp(`\\b${varName}\\s*=`).test(line);
+        
+        if ((hasPropertyAccess || hasArrayAccess) && !isDeclarationLine) {
+          firstUseLine = i;
+        }
+      }
+    }
+    
+    // If we found both declaration and usage, and usage comes first
+    if (declLine !== -1 && firstUseLine !== -1 && firstUseLine < declLine) {
+      errors.push(`Variable "${varName}" is used at line ${firstUseLine + 1} before declaration at line ${declLine + 1} (TDZ error)`);
+    }
+  }
+  
+  // 12. Check for useState with initial value referencing undeclared variables
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const useStateMatch = line.match(/useState\s*\(([^)]+)\)/);
+    
+    if (useStateMatch) {
+      const initialValue = useStateMatch[1];
+      
+      for (const varName of commonArrayVars) {
+        // Check if useState references this variable
+        if (new RegExp(`\\b${varName}\\b`).test(initialValue)) {
+          // Find where variable is declared
+          let declLine = -1;
+          for (let j = 0; j < lines.length; j++) {
+            if (/\b(const|let|var)\s+/.test(lines[j]) && new RegExp(`\\b${varName}\\s*=`).test(lines[j])) {
+              declLine = j;
+              break;
+            }
+          }
+          
+          if (declLine !== -1 && i < declLine) {
+            errors.push(`useState at line ${i + 1} references "${varName}" before it's declared at line ${declLine + 1}`);
+          }
+        }
+      }
+    }
+  }
+  
+  // 13. TypeScript compilation check (most comprehensive)
   try {
     const compilerOptions: ts.CompilerOptions = {
       target: ts.ScriptTarget.ES2015,
