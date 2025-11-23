@@ -53,6 +53,38 @@ function detectLanguageScript(text: string): string {
 }
 
 /**
+ * Detect if the outline requests animations or interactive elements
+ */
+function detectAnimationRequest(text: string): { needsAnimation: boolean; animationType: string[] } {
+  const lowerText = text.toLowerCase();
+  const animationKeywords = [
+    'animation', 'animated', 'animate', 'animating',
+    'transition', 'transitions', 'transitioning',
+    'moving', 'motion', 'movement', 'move',
+    'fade', 'fading', 'slide', 'sliding', 'zoom', 'zooming',
+    'rotate', 'rotating', 'spin', 'spinning',
+    'bounce', 'bouncing', 'pulse', 'pulsing',
+    'interactive', 'interactivity', 'dynamic', 'dynamically',
+    'visual effect', 'visual effects', 'effect',
+    'transformation', 'transform'
+  ];
+  
+  const detectedTypes: string[] = [];
+  let needsAnimation = false;
+  
+  animationKeywords.forEach(keyword => {
+    if (lowerText.includes(keyword)) {
+      needsAnimation = true;
+      if (!detectedTypes.includes(keyword)) {
+        detectedTypes.push(keyword);
+      }
+    }
+  });
+  
+  return { needsAnimation, animationType: detectedTypes };
+}
+
+/**
  * Generate TypeScript React component code for a lesson
  */
 const generateLessonCode = traceable(
@@ -60,13 +92,104 @@ const generateLessonCode = traceable(
     const detectedLanguage = detectLanguageScript(outline);
     const isNonEnglish = detectedLanguage !== "English";
     
+    const animationDetection = detectAnimationRequest(outline);
+    
     const languageNote = isNonEnglish 
       ? `\n\nIMPORTANT: The lesson outline is in ${detectedLanguage}. Generate the lesson content in ${detectedLanguage} script while keeping the code structure and comments in English. The educational content should be in ${detectedLanguage} to match the user's request.`
       : "";
     
+    const animationNote = animationDetection.needsAnimation
+      ? `\n\n🎬 ANIMATION REQUIREMENT DETECTED! 
+The user specifically requested animations/interactive elements (keywords: ${animationDetection.animationType.slice(0, 5).join(', ')}).
+
+YOU MUST IMPLEMENT RICH ANIMATIONS AND VISUAL EFFECTS:
+
+1. **CSS ANIMATIONS & TRANSITIONS** (REQUIRED):
+   - Use Tailwind animation classes: animate-bounce, animate-spin, animate-pulse, animate-ping
+   - Add custom transitions: transition-all duration-500 ease-in-out
+   - Use transform effects: hover:scale-110, hover:rotate-3, hover:-translate-y-2
+   - Add smooth opacity changes: opacity-0 to opacity-100
+   - Implement gradient animations using CSS keyframes
+
+2. **REACT STATE-BASED ANIMATIONS** (REQUIRED):
+   - Use useState to control animation states (isAnimating, showElement, currentStep)
+   - Implement step-by-step reveals with smooth transitions
+   - Add progressive disclosure: elements appear one by one with delays
+   - Create entrance animations: elements slide in, fade in, or scale up on mount
+
+3. **INTERACTIVE ANIMATED ELEMENTS** (REQUIRED):
+   - Clicking cards/buttons triggers visual transformations (flip, expand, color change)
+   - Hover effects with smooth transitions (scale, shadow, glow effects)
+   - Progress bars that animate from 0% to target value
+   - Counter animations that count up to target numbers
+   - Loading states with spinners and skeleton screens
+
+4. **SPECIFIC ANIMATION PATTERNS TO USE**:
+   - **Fade Effects**: Elements fade in/out using opacity transitions
+   - **Slide Animations**: Elements slide from left/right/top/bottom
+   - **Scale Animations**: Elements grow/shrink smoothly
+   - **Rotate Animations**: Elements rotate on interaction
+   - **Stagger Animations**: Multiple elements animate in sequence with delays
+   - **Particle Effects**: Create visual celebrations (confetti-like effects using multiple animated divs)
+   - **Morph Animations**: Smooth transitions between different shapes/states
+   - **Path Animations**: Elements move along a path
+   - **Wave Animations**: Create ripple or wave effects
+   - **Pulsing Glow**: Add glowing effects that pulse
+
+5. **TIMING & SEQUENCING**:
+   - Use setTimeout/setInterval for timed animations
+   - Implement animation queues: one animation triggers after another
+   - Add delays between multiple animated elements (100ms, 200ms, 300ms...)
+   - Use useEffect to trigger animations on component mount or state changes
+
+6. **VISUAL FEEDBACK**:
+   - Every click should produce visible feedback (scale, color change, ripple)
+   - Correct answers: green glow, checkmark animation, celebration effects
+   - Wrong answers: red shake animation, gentle bounce
+   - Loading: smooth spinner, progress bar, or skeleton animation
+   - Completion: confetti effect, success animation, trophy bounce
+
+7. **TAILWIND ANIMATION CLASSES TO USE**:
+   - animate-bounce animate-spin animate-pulse animate-ping
+   - transition-transform transition-opacity transition-colors
+   - duration-150 duration-300 duration-500 duration-700 duration-1000
+   - ease-in ease-out ease-in-out
+   - delay-75 delay-100 delay-150 delay-200 delay-300 delay-500 delay-700 delay-1000
+
+8. **EXAMPLE ANIMATION IMPLEMENTATIONS**:
+   \`\`\`typescript
+   // Fade in animation
+   const [isVisible, setIsVisible] = useState(false);
+   useEffect(() => { setIsVisible(true); }, []);
+   <div className={\`transition-opacity duration-1000 \${isVisible ? 'opacity-100' : 'opacity-0'}\`}>
+   
+   // Stagger animation
+   {items.map((item, i) => (
+     <div key={i} className="animate-fade-in" style={{ animationDelay: \`\${i * 100}ms\` }}>
+   
+   // Scale on hover with smooth transition
+   <button className="transition-transform duration-300 hover:scale-110 active:scale-95">
+   
+   // Progress counter animation
+   const [count, setCount] = useState(0);
+   useEffect(() => {
+     const timer = setInterval(() => {
+       setCount(prev => prev < target ? prev + 1 : prev);
+     }, 50);
+     return () => clearInterval(timer);
+   }, []);
+   
+   // Card flip animation
+   const [isFlipped, setIsFlipped] = useState(false);
+   <div className={\`transition-transform duration-500 \${isFlipped ? 'rotate-y-180' : ''}\`}>
+   \`\`\`
+
+CRITICAL: Since animations were explicitly requested, create a visually dynamic, engaging experience with smooth, professional animations throughout. Don't just add basic hover effects - implement sophisticated animation sequences!`
+      : "";
+    
     const prompt = `You are an expert educational content creator and TypeScript developer.
 
-Generate a complete, self-contained React component in TypeScript that implements the requested lesson.${languageNote}
+Generate a complete, self-contained React component in TypeScript that implements the requested lesson.${languageNote}${animationNote}
 
 CRITICAL REQUIREMENTS:
 1. Return ONLY valid TypeScript/React code - no markdown, no explanations, no code fences
@@ -76,6 +199,57 @@ CRITICAL REQUIREMENTS:
    ✅ GOOD: const questions = [...]; const total = questions.length;
 4. Use Tailwind CSS for ALL styling (classes like: bg-white, text-gray-900, p-6, rounded-lg, shadow-lg, etc.)
 5. Make it visually appealing with proper spacing, colors, and typography
+
+IMAGE HANDLING (CRITICAL):
+Since you cannot upload or import external images, use these approaches for visual content:
+
+A. **EMOJI & UNICODE ICONS** (Preferred for most cases):
+   - Use relevant emojis as visual elements: 🌿🌱🌳 (plants), 🔬🧪 (science), 📚📖 (education)
+   - Large emoji icons: <div className="text-8xl">🌞</div>
+   - Combine emojis for diagrams: ☀️ → 🌱 → 🌳 → 🍎
+   - Examples: 🧬 DNA, 💧 water, ⚡ energy, 🌍 Earth, 🔥 fire, 🌊 waves
+
+B. **SVG ILLUSTRATIONS** (For diagrams, charts, icons):
+   - Create inline SVG elements directly in JSX
+   - Use simple shapes: circles, rectangles, paths, polygons
+   - Example: <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="blue" /></svg>
+   - Create flowcharts, diagrams, simple illustrations
+   - Animate SVGs with CSS classes
+
+C. **CSS-BASED VISUALS** (For geometric shapes and patterns):
+   - Use div elements with Tailwind classes to create shapes
+   - Example circle: <div className="w-20 h-20 rounded-full bg-blue-500" />
+   - Example triangle: Use border tricks or clip-path
+   - Create patterns with gradients: bg-gradient-to-r from-blue-500 to-purple-500
+   - Use box-shadow for glows and depth effects
+
+D. **PLACEHOLDER SERVICES** (For realistic images - use sparingly):
+   - Unsplash Source API: https://source.unsplash.com/400x300/?nature,water
+   - Replace category as needed: /?science, /?technology, /?education, /?animals
+   - Picsum Photos: https://picsum.photos/400/300
+   - Example: <img src="https://source.unsplash.com/400x300/?photosynthesis,plant" alt="Plant" className="rounded-lg" />
+   - IMPORTANT: Always include alt text for accessibility
+   - Use loading="lazy" for performance: <img loading="lazy" ... />
+
+E. **DATA VISUALIZATIONS** (For charts and graphs):
+   - Create bar charts using div elements with heights based on data
+   - Example: <div className="bg-blue-500" style={{ height: \`\${percentage}%\` }} />
+   - Create pie charts using conic-gradients
+   - Use flex/grid layouts for comparison visualizations
+
+F. **ICON SYSTEMS**:
+   - Use text-based symbols: ✓ ✗ ★ ♠ ♥ ♣ ♦ ⚠ ⚡ ☀ ☁ ☂ ☃ ♨ ☕ ⚽ ⚾ 🎯 🎨
+   - Create icon-like elements with borders and backgrounds
+   - Example: <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+
+G. **BEST PRACTICES**:
+   - Prefer emojis and SVGs over external images for faster loading
+   - If using placeholder images, keep them small (max 600px width)
+   - Always use responsive image sizing: w-full max-w-md mx-auto
+   - Add loading states for images: loading="lazy"
+   - Use aspect-ratio classes to prevent layout shift
+   - Combine multiple techniques for rich visual content
+
 6. LESSON TYPES - Adapt based on the request:
    
    A. FOR INTERACTIVE LESSONS (explanations, tutorials, concepts):
@@ -150,17 +324,90 @@ INTERACTIVITY BEST PRACTICES:
 - Use color coding: green for correct, red for incorrect, yellow for hints
 - Add "Reset" or "Try Again" buttons for all interactive elements
 
-STYLING GUIDELINES:
-- Use vibrant, engaging colors with good contrast
-- Primary: blue-600, Success: green-600, Error: red-600, Warning: yellow-500
-- Background: gradient backgrounds (bg-gradient-to-br from-blue-50 to-purple-50)
-- Text: gray-900 for headings, gray-700 for body
-- Cards: shadow-lg hover:shadow-xl transition-shadow
-- Buttons: transform hover:scale-105 active:scale-95 transition-all
-- Interactive elements: border-2 hover:border-blue-500
-- Use proper spacing: p-6, gap-6, space-y-6 for better breathing room
-- Add rounded corners: rounded-xl for cards, rounded-lg for buttons
-- Make it fully responsive with mobile-first approach
+STYLING GUIDELINES (CRITICAL - PREVENT BROKEN UI):
+⚠️ CRITICAL: Always use COMPLETE and VALID Tailwind CSS classes. NEVER use broken or incomplete classes!
+
+✅ BUTTONS - Use these exact patterns (COPY EXACTLY):
+- Primary Button: 
+  <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md hover:shadow-lg">
+- Secondary Button:
+  <button className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200">
+- Success Button:
+  <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200">
+- Danger Button:
+  <button className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200">
+- ALWAYS include: padding (px-* py-*), background (bg-*), text color (text-*), rounded corners (rounded-*)
+
+✅ CARDS - Use these exact patterns:
+- Basic Card:
+  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+- Interactive Card:
+  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+- Colored Card:
+  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg p-6 border border-blue-200">
+- ALWAYS include: background (bg-*), padding (p-*), rounded corners (rounded-*), shadow (shadow-*)
+
+✅ CONTAINERS & DIVS - Use these patterns:
+- Main Container:
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-8">
+- Content Container:
+  <div className="max-w-4xl mx-auto">
+- Flex Container:
+  <div className="flex items-center justify-between gap-4">
+- Grid Container:
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+- ALWAYS ensure proper spacing (p-*, m-*, gap-*) and layout (flex, grid, etc.)
+
+✅ TEXT ELEMENTS - Proper Typography:
+- Headings: <h1 className="text-4xl font-bold text-gray-900 mb-4">
+- Subheadings: <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+- Body Text: <p className="text-base text-gray-700 leading-relaxed">
+- Labels: <label className="block text-sm font-medium text-gray-700 mb-2">
+- ALWAYS include: text size (text-*), color (text-*), font weight (font-*)
+
+✅ INPUT FIELDS - Complete Styling:
+- Text Input:
+  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+- Textarea:
+  <textarea className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" rows={4} />
+- ALWAYS include: width (w-*), padding (px-* py-*), border, focus states
+
+✅ COMMON MISTAKES TO AVOID:
+❌ NEVER use incomplete classes: className="bg-" or className="text-"
+❌ NEVER forget closing tags: <div> without </div>
+❌ NEVER use invalid color names: bg-lightblue (use bg-blue-300)
+❌ NEVER forget padding/margin: <button className="bg-blue-500"> (missing px-* py-*)
+❌ NEVER use broken syntax: className={bg-blue-500} (missing quotes)
+❌ NEVER use invalid Tailwind: className="background-color-blue" (use bg-blue-500)
+❌ NEVER mix inline styles unless absolutely necessary
+
+✅ RESPONSIVE DESIGN (MANDATORY):
+- Use mobile-first breakpoints: sm: md: lg: xl: 2xl:
+- Example: <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+- Always test layouts work on mobile: flex-col md:flex-row
+- Use responsive text: text-2xl md:text-3xl lg:text-4xl
+- Responsive padding: p-4 md:p-6 lg:p-8
+
+✅ COLOR PALETTE (Use these exact values):
+- Primary Blues: bg-blue-50, bg-blue-100, bg-blue-500, bg-blue-600, bg-blue-700
+- Success Greens: bg-green-50, bg-green-100, bg-green-500, bg-green-600, bg-green-700
+- Danger Reds: bg-red-50, bg-red-100, bg-red-500, bg-red-600, bg-red-700
+- Warning Yellows: bg-yellow-50, bg-yellow-100, bg-yellow-500, bg-yellow-600
+- Neutral Grays: bg-gray-50, bg-gray-100, bg-gray-200, bg-gray-700, bg-gray-800, bg-gray-900
+- Purple Accent: bg-purple-50, bg-purple-100, bg-purple-500, bg-purple-600
+
+✅ SPACING SYSTEM (Be consistent):
+- Small spacing: gap-2, p-2, m-2 (0.5rem)
+- Medium spacing: gap-4, p-4, m-4 (1rem)
+- Large spacing: gap-6, p-6, m-6 (1.5rem)
+- Extra large: gap-8, p-8, m-8 (2rem)
+
+VALIDATION BEFORE GENERATING:
+1. Every <div> must have proper className with bg-*, p-*, rounded-*
+2. Every <button> must have px-*, py-*, bg-*, text-*, rounded-*
+3. All opening tags must have closing tags
+4. All className values must be in quotes and valid Tailwind classes
+5. No inline styles unless absolutely necessary (use Tailwind instead)
 
 INTERACTIVE PATTERNS TO USE:
 1. **Flashcards**: Click to flip and reveal answer

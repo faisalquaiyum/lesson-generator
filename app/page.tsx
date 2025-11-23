@@ -258,7 +258,7 @@ export default function Home() {
 
           {/* Multilingual Taglines */}
           <div className="max-w-4xl mx-auto mb-8 space-y-3">
-            <p className="text-lg text-yellow-200 font-semibold animate-pulse">
+            <p className="text-lg text-yellow-200 font-semibold">
               🇮🇳 हिंदी, तमिल, गुजराती और अन्य भाषाओं में सीखें | Learn in Hindi,
               Tamil, Gujarati & more
             </p>
@@ -280,7 +280,7 @@ export default function Home() {
         </div>
 
         {/* Generation Form */}
-        <Card className="p-8 mb-12 shadow-2xl bg-white/95 backdrop-blur border-2 border-purple-300/30 hover:border-purple-400/50 transition-all duration-300 transform hover:scale-[1.01]">
+        <Card className="p-8 mb-12 shadow-2xl bg-white/95 backdrop-blur border-2 border-purple-300/30">
           <form onSubmit={handleGenerate} className="space-y-6">
             <div>
               <Label
@@ -293,8 +293,8 @@ export default function Home() {
                 id="outline"
                 value={outline}
                 onChange={(e) => setOutline(e.target.value)}
-                placeholder="e.g., 'Create an interactive quiz on Indian history' or 'Teach me photosynthesis with animations' or 'ગણિત પાઠ બનાવો' (Gujarati)"
-                className="w-full h-40 px-5 py-4 border-2 border-purple-200 rounded-xl focus:ring-4 focus:ring-purple-300/50 focus:border-purple-500 resize-none text-base transition-all duration-200 hover:border-purple-300 bg-gradient-to-br from-white to-purple-50/30 text-gray-800 placeholder:text-gray-400 shadow-inner"
+                placeholder="e.g., 'Create an interactive quiz on Indian history' or 'Teach me photosynthesis with quizzes' or 'ગણિત પાઠ બનાવો' (Gujarati)"
+                className="w-full h-40 px-5 py-4 border-2 border-purple-200 rounded-xl focus:ring-4 focus:ring-purple-300/50 focus:border-purple-500 resize-none text-base transition-colors duration-200 hover:border-purple-300 bg-gradient-to-br from-white to-purple-50/30 text-gray-800 placeholder:text-gray-400 shadow-inner"
                 disabled={isGenerating}
               />
               <div className="flex items-start gap-2 mt-3 text-sm text-gray-600 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-purple-200">
@@ -339,7 +339,7 @@ export default function Home() {
             <Button
               type="submit"
               disabled={isGenerating || !outline.trim()}
-              className="w-full py-6 text-lg font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] border-2 border-white/20"
+              className="w-full py-6 text-lg font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/20"
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center gap-2">
@@ -373,9 +373,9 @@ export default function Home() {
         </Card>
 
         {/* Lessons Table */}
-        <Card className="p-8 shadow-2xl bg-white/95 backdrop-blur border-2 border-purple-300/30 hover:border-purple-400/50 transition-all duration-300">
+        <Card className="p-8 shadow-2xl bg-white/95 backdrop-blur border-2 border-purple-300/30">
           <div className="flex items-center gap-4 mb-8">
-            <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 w-1.5 h-10 rounded-full animate-pulse"></div>
+            <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 w-1.5 h-10 rounded-full"></div>
             <div className="flex-1">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 📚 Your Lessons
@@ -427,42 +427,107 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-[#1D546C]/30 bg-[#F4F4F4]">
-                    <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
-                      Title
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
-                      Status
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
-                      Created
-                    </th>
-                    <th className="text-right py-4 px-4 font-semibold text-[#0C2B4E]">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lessons.map((lesson) => (
-                    <tr
-                      key={lesson.id}
-                      className="border-b border-[#1D546C]/10 hover:bg-[#F4F4F4]/50 transition-all duration-200"
-                    >
-                      <td className="py-4 px-4 align-middle">
-                        <div className="font-semibold text-[#0C2B4E]">
+            <div>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 border-[#1D546C]/30 bg-[#F4F4F4]">
+                      <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
+                        Title
+                      </th>
+                      <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
+                        Status
+                      </th>
+                      <th className="text-left py-4 px-4 font-semibold text-[#0C2B4E]">
+                        Created
+                      </th>
+                      <th className="text-right py-4 px-4 font-semibold text-[#0C2B4E]">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lessons.map((lesson) => (
+                      <tr
+                        key={lesson.id}
+                        className="border-b border-[#1D546C]/10 hover:bg-[#F4F4F4]/50 transition-all duration-200"
+                      >
+                        <td className="py-4 px-4 align-middle">
+                          <div className="font-semibold text-[#0C2B4E]">
+                            {lesson.title}
+                          </div>
+                          <div className="text-sm text-[#1A3D64]/60 mt-1 line-clamp-1">
+                            {lesson.outline}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 align-middle">
+                          {getStatusBadge(lesson.status)}
+                        </td>
+                        <td className="py-4 px-4 text-[#1A3D64]/70 align-middle">
+                          {new Date(lesson.created_at).toLocaleDateString(
+                            undefined,
+                            {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </td>
+                        <td className="py-4 px-4 text-right align-middle">
+                          {lesson.status === "generated" ? (
+                            <Link href={`/lessons/${lesson.id}`}>
+                              <Button
+                                variant="default"
+                                className="bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white shadow-lg transition-all duration-200 hover:shadow-xl"
+                              >
+                                📖 View Lesson
+                              </Button>
+                            </Link>
+                          ) : lesson.status === "failed" ? (
+                            <span className="text-sm text-red-600 font-medium">
+                              {lesson.error_message || "Generation failed"}
+                            </span>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              disabled
+                              className="opacity-50 cursor-not-allowed border-[#1D546C]/30"
+                            >
+                              ⏳ Generating...
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {lessons.map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    className="bg-gradient-to-br from-white to-purple-50/30 border-2 border-purple-200/50 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-[#0C2B4E] text-base mb-1 line-clamp-2">
                           {lesson.title}
-                        </div>
-                        <div className="text-sm text-[#1A3D64]/60 mt-1 line-clamp-1">
+                        </h3>
+                        <p className="text-xs text-[#1A3D64]/60 line-clamp-2 mb-2">
                           {lesson.outline}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 align-middle">
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
                         {getStatusBadge(lesson.status)}
-                      </td>
-                      <td className="py-4 px-4 text-[#1A3D64]/70 align-middle">
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-purple-200/50">
+                      <div className="text-xs text-[#1A3D64]/70">
                         {new Date(lesson.created_at).toLocaleDateString(
                           undefined,
                           {
@@ -472,35 +537,37 @@ export default function Home() {
                             minute: "2-digit",
                           }
                         )}
-                      </td>
-                      <td className="py-4 px-4 text-right align-middle">
+                      </div>
+                      <div className="flex-shrink-0">
                         {lesson.status === "generated" ? (
                           <Link href={`/lessons/${lesson.id}`}>
                             <Button
+                              size="sm"
                               variant="default"
-                              className="bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white shadow-lg transition-all duration-200 hover:shadow-xl"
+                              className="bg-gradient-to-r from-[#1A3D64] to-[#1D546C] hover:from-[#0C2B4E] hover:to-[#1A3D64] text-white shadow-lg transition-all duration-200 hover:shadow-xl text-xs"
                             >
-                              📖 View Lesson
+                              📖 View
                             </Button>
                           </Link>
                         ) : lesson.status === "failed" ? (
-                          <span className="text-sm text-red-600 font-medium">
-                            {lesson.error_message || "Generation failed"}
+                          <span className="text-xs text-red-600 font-medium">
+                            Failed
                           </span>
                         ) : (
                           <Button
+                            size="sm"
                             variant="outline"
                             disabled
-                            className="opacity-50 cursor-not-allowed border-[#1D546C]/30"
+                            className="opacity-50 cursor-not-allowed border-[#1D546C]/30 text-xs"
                           >
-                            ⏳ Generating...
+                            ⏳ Wait...
                           </Button>
                         )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </Card>
