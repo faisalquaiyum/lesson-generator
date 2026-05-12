@@ -3,8 +3,8 @@ import { traceable } from "langsmith/traceable";
 import { validateTypeScriptCode } from "./types";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const titleModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-const codeModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const titleModel = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+const codeModel = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
 
 interface GenerateLessonParams {
   outline: string;
