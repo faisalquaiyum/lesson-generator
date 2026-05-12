@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Lesson } from "@/lib/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,69 +15,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch lessons on mount
-  useEffect(() => {
-    fetchLessons();
-  }, []);
-
-  // Set up polling only when there are generating lessons
-  useEffect(() => {
-    const hasGenerating = lessons.some((l) => l.status === "generating");
-
-    // Clean up existing interval
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-
-    if (hasGenerating && !document.hidden) {
-      // Poll every 3 seconds for updates (only when generating and tab is visible)
-      pollingIntervalRef.current = setInterval(() => {
-        fetchLessons();
-      }, 3000);
-    }
-
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lessons.length, lessons.filter((l) => l.status === "generating").length]);
-
-  // Handle visibility change (stop polling when tab is hidden)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      const hasGenerating = lessons.some((l) => l.status === "generating");
-
-      if (document.hidden && pollingIntervalRef.current) {
-        // Stop polling when tab is hidden
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-        console.log("🔕 Polling stopped (tab hidden)");
-      } else if (
-        !document.hidden &&
-        hasGenerating &&
-        !pollingIntervalRef.current
-      ) {
-        // Resume polling when tab becomes visible again
-        fetchLessons();
-        pollingIntervalRef.current = setInterval(() => {
-          fetchLessons();
-        }, 3000);
-        console.log("🔔 Polling resumed (tab visible)");
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lessons]);
-
-  const fetchLessons = async (retryCount = 0) => {
+  const fetchLessons = useCallback(async (retryCount = 0) => {
     try {
       if (retryCount === 0) setLoading(true);
 
@@ -114,7 +52,71 @@ export default function Home() {
     } finally {
       if (retryCount === 0) setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch lessons on mount
+  useEffect(() => {
+    fetchLessons();
+  }, [fetchLessons]);
+
+  // Set up polling only when there are generating lessons
+  useEffect(() => {
+    const hasGenerating = lessons.some((l) => l.status === "generating");
+
+    // Clean up existing interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
+    if (hasGenerating && !document.hidden) {
+      // Poll every 3 seconds for updates (only when generating and tab is visible)
+      pollingIntervalRef.current = setInterval(() => {
+        fetchLessons();
+      }, 3000);
+    }
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [
+    fetchLessons,
+    lessons.length,
+    lessons.filter((l) => l.status === "generating").length,
+  ]);
+
+  // Handle visibility change (stop polling when tab is hidden)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const hasGenerating = lessons.some((l) => l.status === "generating");
+
+      if (document.hidden && pollingIntervalRef.current) {
+        // Stop polling when tab is hidden
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        console.log("🔕 Polling stopped (tab hidden)");
+      } else if (
+        !document.hidden &&
+        hasGenerating &&
+        !pollingIntervalRef.current
+      ) {
+        // Resume polling when tab becomes visible again
+        fetchLessons();
+        pollingIntervalRef.current = setInterval(() => {
+          fetchLessons();
+        }, 3000);
+        console.log("🔔 Polling resumed (tab visible)");
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchLessons, lessons]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,7 +265,8 @@ export default function Home() {
               Tamil, Gujarati & more
             </p>
             <p className="text-base text-blue-200 italic">
-              "علم حاصل کرنا ہر مرد اور عورت پر فرض ہے" - طلب العلم فریضۃ
+              &ldquo;علم حاصل کرنا ہر مرد اور عورت پر فرض ہے&rdquo; - طلب العلم
+              فریضۃ
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-sm text-white/70">

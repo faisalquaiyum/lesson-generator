@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Lesson } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -15,145 +15,151 @@ export default function LessonPage() {
   const [LessonComponent, setLessonComponent] =
     useState<React.ComponentType | null>(null);
 
+  const loadComponent = useCallback(
+    async (generatedCode: string) => {
+      try {
+        // Compile TypeScript to JavaScript using the API endpoint
+        const compileResponse = await fetch("/api/compile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: generatedCode }),
+        });
+
+        if (!compileResponse.ok) {
+          const errorData = await compileResponse.json();
+          throw new Error(
+            errorData.details || errorData.error || "Compilation failed",
+          );
+        }
+
+        const { compiledCode } = await compileResponse.json();
+
+        // Create sandboxed HTML with React and the compiled component
+        // Use a function to avoid template literal escaping issues
+        const createHtml = (code: string) => {
+          const htmlParts = [
+            "<!DOCTYPE html>",
+            "<html>",
+            "  <head>",
+            '    <meta charset="UTF-8">',
+            '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+            '    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>',
+            '    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>',
+            '    <script src="https://cdn.tailwindcss.com"></script>',
+            "    <style>",
+            "      body { margin: 0; padding: 0; overflow-x: hidden; }",
+            "    </style>",
+            "  </head>",
+            "  <body>",
+            '    <div id="root"></div>',
+            "    <script>",
+            "      try {",
+            "        const { useState, useEffect, useCallback, useMemo, useRef } = React;",
+            "        ",
+            code,
+            "        ",
+            '        const root = ReactDOM.createRoot(document.getElementById("root"));',
+            "        root.render(React.createElement(LessonComponent));",
+            "      } catch (error) {",
+            '        document.body.innerHTML = "<div style=\\"padding: 20px; color: red;\\">Error rendering lesson: " + error.message + "</div>";',
+            '        console.error("Lesson render error:", error);',
+            "      }",
+            "    </script>",
+            "  </body>",
+            "</html>",
+          ];
+          return htmlParts.join("\n");
+        };
+
+        const html = createHtml(compiledCode);
+
+        // Store the HTML to render in iframe using srcdoc
+        // Capture router in closure
+        const routerInstance = router;
+
+        setLessonComponent(() => {
+          return function IframeLessonWrapper() {
+            const iframeRef = useRef<HTMLIFrameElement>(null);
+
+            useEffect(() => {
+              // Listen for messages from the iframe
+              const handleMessage = (event: MessageEvent) => {
+                if (event.data === "navigateToHome") {
+                  // Use Next.js router for navigation
+                  routerInstance.push("/");
+                }
+              };
+
+              window.addEventListener("message", handleMessage);
+              return () => window.removeEventListener("message", handleMessage);
+            }, []);
+
+            return (
+              <iframe
+                ref={iframeRef}
+                srcDoc={html}
+                sandbox="allow-scripts allow-top-navigation"
+                style={{
+                  width: "100%",
+                  minHeight: "600px",
+                  border: "none",
+                }}
+                title="Lesson Content"
+              />
+            );
+          };
+        });
+      } catch (err) {
+        console.error("Error loading component:", err);
+        setError(
+          "Failed to compile and render lesson: " +
+            (err instanceof Error ? err.message : "Unknown error"),
+        );
+      }
+    },
+    [router],
+  );
+
+  const fetchLesson = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch(`/api/lessons/${id}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch lesson");
+        }
+
+        setLesson(data.lesson);
+
+        // If the lesson is still generating, poll for updates
+        if (data.lesson.status === "generating") {
+          setTimeout(() => fetchLesson(id), 2000);
+        } else if (
+          data.lesson.status === "generated" &&
+          data.lesson.generated_content
+        ) {
+          // Dynamically load and render the component
+          loadComponent(data.lesson.generated_content);
+        } else if (data.lesson.status === "failed") {
+          setError(data.lesson.error_message || "Lesson generation failed");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load lesson");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadComponent],
+  );
+
   useEffect(() => {
     if (params.id) {
       fetchLesson(params.id as string);
     }
-  }, [params.id]);
-
-  const fetchLesson = async (id: string) => {
-    try {
-      const response = await fetch(`/api/lessons/${id}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch lesson");
-      }
-
-      setLesson(data.lesson);
-
-      // If the lesson is still generating, poll for updates
-      if (data.lesson.status === "generating") {
-        setTimeout(() => fetchLesson(id), 2000);
-      } else if (
-        data.lesson.status === "generated" &&
-        data.lesson.generated_content
-      ) {
-        // Dynamically load and render the component
-        loadComponent(data.lesson.generated_content);
-      } else if (data.lesson.status === "failed") {
-        setError(data.lesson.error_message || "Lesson generation failed");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load lesson");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadComponent = async (generatedCode: string) => {
-    try {
-      // Compile TypeScript to JavaScript using the API endpoint
-      const compileResponse = await fetch("/api/compile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: generatedCode }),
-      });
-
-      if (!compileResponse.ok) {
-        const errorData = await compileResponse.json();
-        throw new Error(
-          errorData.details || errorData.error || "Compilation failed"
-        );
-      }
-
-      const { compiledCode } = await compileResponse.json();
-
-      // Create sandboxed HTML with React and the compiled component
-      // Use a function to avoid template literal escaping issues
-      const createHtml = (code: string) => {
-        const htmlParts = [
-          "<!DOCTYPE html>",
-          "<html>",
-          "  <head>",
-          '    <meta charset="UTF-8">',
-          '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
-          '    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>',
-          '    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>',
-          '    <script src="https://cdn.tailwindcss.com"></script>',
-          "    <style>",
-          "      body { margin: 0; padding: 0; overflow-x: hidden; }",
-          "    </style>",
-          "  </head>",
-          "  <body>",
-          '    <div id="root"></div>',
-          "    <script>",
-          "      try {",
-          "        const { useState, useEffect, useCallback, useMemo, useRef } = React;",
-          "        ",
-          code,
-          "        ",
-          '        const root = ReactDOM.createRoot(document.getElementById("root"));',
-          "        root.render(React.createElement(LessonComponent));",
-          "      } catch (error) {",
-          '        document.body.innerHTML = "<div style=\\"padding: 20px; color: red;\\">Error rendering lesson: " + error.message + "</div>";',
-          '        console.error("Lesson render error:", error);',
-          "      }",
-          "    </script>",
-          "  </body>",
-          "</html>",
-        ];
-        return htmlParts.join("\n");
-      };
-
-      const html = createHtml(compiledCode);
-
-      // Store the HTML to render in iframe using srcdoc
-      // Capture router in closure
-      const routerInstance = router;
-
-      setLessonComponent(() => {
-        return function IframeLessonWrapper() {
-          const iframeRef = useRef<HTMLIFrameElement>(null);
-
-          useEffect(() => {
-            // Listen for messages from the iframe
-            const handleMessage = (event: MessageEvent) => {
-              if (event.data === "navigateToHome") {
-                // Use Next.js router for navigation
-                routerInstance.push("/");
-              }
-            };
-
-            window.addEventListener("message", handleMessage);
-            return () => window.removeEventListener("message", handleMessage);
-          }, []);
-
-          return (
-            <iframe
-              ref={iframeRef}
-              srcDoc={html}
-              sandbox="allow-scripts allow-top-navigation"
-              style={{
-                width: "100%",
-                minHeight: "600px",
-                border: "none",
-              }}
-              title="Lesson Content"
-            />
-          );
-        };
-      });
-    } catch (err) {
-      console.error("Error loading component:", err);
-      setError(
-        "Failed to compile and render lesson: " +
-          (err instanceof Error ? err.message : "Unknown error")
-      );
-    }
-  };
+  }, [params.id, fetchLesson]);
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
