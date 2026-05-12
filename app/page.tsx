@@ -131,7 +131,7 @@ export default function Home() {
       // Check if online
       if (!navigator.onLine) {
         throw new Error(
-          "You are offline. Please check your internet connection."
+          "You are offline. Please check your internet connection.",
         );
       }
 
@@ -161,14 +161,14 @@ export default function Home() {
               retryAfter < 60
                 ? `${retryAfter} seconds`
                 : `${minutes} minute${minutes > 1 ? "s" : ""}`
-            } before trying again.`
+            } before trying again.`,
           );
         }
 
         // Handle duplicate lesson conflict
         if (response.status === 409) {
           throw new Error(
-            `${data.error}\n\n💡 Tip: Check your existing lessons below.`
+            `${data.error}\n\n💡 Tip: Check your existing lessons below.`,
           );
         }
 
@@ -308,19 +308,24 @@ export default function Home() {
                     </li>
                     <li className="font-semibold text-purple-600">
                       🌍 Works in 11+ languages! Try:{" "}
-                      <span className="text-orange-600">"गणित पाठ बनाओ"</span>{" "}
-                      or <span className="text-green-600">"ગણિત શીખવો"</span>
+                      <span className="text-orange-600">
+                        &ldquo;गणित पाठ बनाओ&rdquo;
+                      </span>{" "}
+                      or{" "}
+                      <span className="text-green-600">
+                        &ldquo;ગણિત શીખવો&rdquo;
+                      </span>
                     </li>
                   </ul>
                   <div className="mt-3 pt-3 border-t border-purple-200">
                     <p className="text-xs text-gray-600 italic">
                       💬 <span className="font-semibold">हिंदी में:</span>{" "}
-                      "विज्ञान का पाठ" •{" "}
-                      <span className="font-semibold">தமிழில்:</span> "கணிதம்
-                      பாடம்" • <span className="font-semibold">اردو:</span>{" "}
-                      "سائنس سبق" •{" "}
-                      <span className="font-semibold">ಕನ್ನಡ:</span> "ವಿಜ್ಞಾನ
-                      ಪಾಠ"
+                      &ldquo;विज्ञान का पाठ&rdquo; •{" "}
+                      <span className="font-semibold">தமிழில்:</span>{" "}
+                      &ldquo;கணிதம் பாடம்&rdquo; •{" "}
+                      <span className="font-semibold">اردو:</span> &ldquo;سائنس
+                      سبق&rdquo; • <span className="font-semibold">ಕನ್ನಡ:</span>{" "}
+                      &ldquo;ವಿಜ್ಞಾನ ಪಾಠ&rdquo;
                     </p>
                   </div>
                 </div>
@@ -472,7 +477,7 @@ export default function Home() {
                               day: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
-                            }
+                            },
                           )}
                         </td>
                         <td className="py-4 px-4 text-right align-middle">
@@ -535,7 +540,7 @@ export default function Home() {
                             day: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
-                          }
+                          },
                         )}
                       </div>
                       <div className="flex-shrink-0">
@@ -577,7 +582,7 @@ export default function Home() {
         <div className="text-center mt-12 space-y-4">
           <div className="bg-white/10 backdrop-blur rounded-lg p-4 max-w-2xl mx-auto border border-white/20">
             <p className="text-lg text-yellow-200 font-semibold mb-2">
-              "ज्ञान ही शक्ति है"
+              &ldquo;ज्ञान ही शक्ति है&rdquo;
             </p>
             <p className="text-sm text-white/70">
               Knowledge is Power • शिक्षा सबसे बड़ा धन है

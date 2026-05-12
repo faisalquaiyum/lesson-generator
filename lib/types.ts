@@ -184,15 +184,6 @@ export function validateTypeScriptCode(code: string): {
   
   // 13. TypeScript compilation check (most comprehensive)
   try {
-    const compilerOptions: ts.CompilerOptions = {
-      target: ts.ScriptTarget.ES2015,
-      module: ts.ModuleKind.ESNext,
-      jsx: ts.JsxEmit.React,
-      strict: false, // Don't be too strict on types
-      skipLibCheck: true,
-      noEmit: true,
-    };
-    
     // Create a virtual source file
     const sourceFile = ts.createSourceFile(
       "temp.tsx",

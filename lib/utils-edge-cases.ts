@@ -84,7 +84,7 @@ export async function fetchWithRetryAndTimeout(
     url,
     options,
     maxRetries
-  ).then((response) => {
+  ).then(() => {
     // Apply timeout to the actual request
     return fetchWithTimeout(url, options, timeout);
   });
@@ -141,7 +141,7 @@ export function formatRetryAfter(seconds: number): string {
 /**
  * Debounce function to prevent rapid API calls
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -161,7 +161,7 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function to limit API call frequency
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
